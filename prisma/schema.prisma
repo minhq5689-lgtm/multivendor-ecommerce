@@ -31,5 +31,49 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+enum PromoType {
+  PERCENT
+  FIXED
+  FLASH
+  COMBO
+  THRESHOLD
+}
 
+model Product {
+  id            String      @id @default(uuid())
+  name          String
+  description   String?     @db.Text
+  category      String      @default("other")
+  costPrice     Float
+  originalPrice Float
+  finalPrice    Float
+  stock         Int         @default(0)
+  sellerId      String
+  seller        User        @relation(fields: [sellerId], references: [id])
+  promotions    Promotion[]
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sellerId])
+}
+
+model Promotion {
+  id              String    @id @default(uuid())
+  type            PromoType
+  active          Boolean   @default(true)
+  stackable       Boolean   @default(true)
+  value           Float?
+  fixedAmount     Float?
+  buyQty          Int?
+  freeQty         Int?
+  minOrder        Float?
+  discountPercent Float?
+  productId       String
+  product         Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
+}
